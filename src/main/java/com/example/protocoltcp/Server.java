@@ -1,8 +1,7 @@
-package com.example.simple;
+package com.example.protocoltcp;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -10,18 +9,16 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
-public class NettyServer {
+/**
+ * 用自定义的协议解决TCP的粘包和拆包
+ */
+public class Server {
     public static void main(String[] args) throws Exception {
-        // 线程数是默认逻辑CPU数的两倍
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
-        
+
         ServerBootstrap bootstrap = new ServerBootstrap();
-
-
-        NettyServerHandler handler = new NettyServerHandler();
-        NettyServerAsyncHandler asyncHandler = new NettyServerAsyncHandler();
-
+        
         bootstrap.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .option(ChannelOption.SO_BACKLOG, 128)
@@ -29,28 +26,15 @@ public class NettyServer {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(asyncHandler);
+                        ch.pipeline()
+                                .addLast(new ProtocolDecoder())
+                                .addLast(new ProtocolEncoder())
+                                .addLast(new ServerHandler());
                     }
                 });
+
         
-        System.out.println("server init");
-        // 绑定端口并启动
-        ChannelFuture future = bootstrap.bind(8888).sync();
-        
-        // 注册监听器，监控关心的事件
-        future.addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                if (future.isSuccess()) {
-                    System.out.println("success");
-                }
-            }
-        });
-        
-        
-        
-        
-        // 监听关闭通道
+        ChannelFuture future = bootstrap.bind(9926).sync();
         future.channel().closeFuture().sync();
     }
 }

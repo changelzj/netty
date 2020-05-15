@@ -1,0 +1,13 @@
+// 传输一个对象
+
+syntax = "proto3"; //版本
+
+option java_outer_classname = "StudentDTO"; //类名，也是文件名
+
+message Student {
+  int32 id = 1; // 类型 属性 = 序号
+  
+  string name = 2;
+}
+
+

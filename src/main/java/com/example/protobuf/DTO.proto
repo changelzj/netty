@@ -1,0 +1,36 @@
+// 传输多个对象
+
+syntax = "proto3";
+option optimize_for = SPEED;//加速解析
+option java_package = "com.example.protobuf";//包
+option java_outer_classname = "DTO";
+
+message Obj {
+  // 枚举
+  enum Dtype {
+    studentType = 0;
+    userType = 1;
+  }
+  
+  // 标识类型
+  Dtype type = 1;
+  
+  // 每次只能出现一个
+  oneof databody {
+    Student student = 2;
+    User user = 3;
+  }
+  
+}
+
+message Student {
+  int32 id = 1;
+  string name = 2;
+}
+
+message User {
+  int32 id = 1;
+  int32 age = 2;
+}
+
+

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>websocket</title>
+    <script>
+        var socket = undefined;
+        
+        window.onload = function () {
+            
+            if (window.WebSocket) {
+                socket = new WebSocket("ws://127.0.0.1:7000/chat");
+                
+                socket.onmessage = function (ev) {
+                    var ele = document.getElementById("msg");
+                    ele.value = ele.value + "\n" + ev.data;
+                };
+                
+                socket.onopen = function (ev) {
+                    alert("连接开启");
+                };
+                
+                socket.onclose = function (ev) {
+                    alert("连接关闭");
+                };
+                
+                socket.onerror = function (err) {
+                    alert("连接出错")
+                };
+                
+            } else {
+                alert("浏览器不支持websocket");
+            }
+        };
+        
+        function send() {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                var msg = document.getElementById("text").value;
+                socket.send(msg);
+            } else {
+                alert("无法发送");
+            }
+            
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <textarea name="" id="msg" style="width: 500px; height: 400px" ></textarea>
+        
+    </div>
+
+    <div>
+        <textarea name="" id="text" style="width: 500px; height: 100px" ></textarea>
+    </div>
+    <div>
+        <button onclick="send()">发送</button>
+    </div>
+    
+    
+</body>
+</html>

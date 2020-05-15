@@ -1,4 +1,4 @@
-package com.example.simple;
+package com.example.protocoltcp;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -8,10 +8,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 
-public class NettyClient {
+public class Client {
     public static void main(String[] args) throws Exception {
-        NettyClientHandler handler = new NettyClientHandler();
-
         EventLoopGroup loopGroup = new NioEventLoopGroup();
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(loopGroup)
@@ -19,11 +17,14 @@ public class NettyClient {
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(handler);
+                        ch.pipeline()
+                                .addLast(new ProtocolEncoder())
+                                .addLast(new ProtocolDecoder())
+                                .addLast(new ClientHandler());
                     }
                 });
-        
-        ChannelFuture future = bootstrap.connect("127.0.0.1", 8888);
+
+        ChannelFuture future = bootstrap.connect("127.0.0.1", 9926);
         future.channel().closeFuture().sync();
     }
 }
